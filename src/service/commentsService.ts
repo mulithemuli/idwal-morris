@@ -11,10 +11,7 @@ export class CommentsService {
 
     listComments() {
         return fetch('http://localhost:8080/api/comment').then(response => {
-            if (response.status !== 200) {
-                console.warn('error fetching comments: ' + response.status);
-                // TODO errorhandling …
-            }
+            this.handleErrorResponse(response);
             return response.json() as Promise<Comment[]>;
         });
     }
@@ -22,9 +19,7 @@ export class CommentsService {
     addComment(comment: Comment) {
         return fetch('http://localhost:8080/api/comment', { method: 'PUT', body: JSON.stringify(comment), headers: { 'content-type': 'application/json'} })
             .then(response => {
-                if (response.status !== 200) {
-                    console.warn('error adding new comment ' + response.status);
-                }
+                this.handleErrorResponse(response);
                 return response.json() as Promise<Comment>;
             });
     }
@@ -32,9 +27,7 @@ export class CommentsService {
     updateComment(comment: Comment) {
         return fetch(`http://localhost:8080/api/comment/${comment.id}`, { method: 'POST', body: JSON.stringify(comment), headers: { 'content-type': 'application/json' } })
             .then(response => {
-                if (response.status !== 200) {
-                    console.warn('error updating comment ' + response.status);
-                }
+                this.handleErrorResponse(response);
                 return response.json() as Promise<Comment>;
             })
     }
@@ -42,11 +35,17 @@ export class CommentsService {
     deleteComment(comment: Comment) {
         return fetch(`http://localhost:8080/api/comment/${comment.id}`, { method: 'DELETE' })
             .then(response => {
-                if (response.status !== 200) {
-                    console.warn('error deleting comment ' + response.status);
-                }
+                this.handleErrorResponse(response);
                 return response.json() as Promise<Comment>;
             })
+    }
+
+    private handleErrorResponse(response: Response) {
+        if (response.status !== 200) {
+            throw {
+                response: response
+            };
+        }
     }
 }
 
@@ -57,4 +56,11 @@ export interface Comment {
     comment: string;
 
     dateAdd?: string;
+}
+
+export interface HttpError {
+
+    response: Response;
+
+    message?: string;
 }

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {CommentsService, Comment} from "../service/commentsService";
+import {CommentsService, Comment, HttpError} from "../service/commentsService";
 import CommentComponent from "./CommentComponent";
 import {DateTime} from "luxon";
 
@@ -35,11 +35,15 @@ function CommentsComponent() {
                 }
                 resetEditComment();
                 sort(comments);
+            }).catch((error: HttpError) => {
+                console.warn(`Unable to modify comment. Server responded with status code ${error.response.status}`);
             });
         } else {
             commentsService.addComment(editComment).then(comment => {
                 setComments(sort([...comments, comment]));
                 resetEditComment();
+            }).catch((error: HttpError) => {
+                console.warn(`Unable to add comment. Server responded with status code ${error.response.status}`);
             });
         }
     }
@@ -48,7 +52,9 @@ function CommentsComponent() {
         commentsService.deleteComment(comment).then(comment => {
             comments.splice(comments.findIndex(existingComment => existingComment.id === comment.id), 1);
             resetEditComment();
-        })
+        }).catch((error: HttpError) => {
+            console.warn(`Unable to delete comment. Server responded with status code ${error.response.status}`);
+        });
     }
 
     const doEditComment = (comment: Comment) => setEditComment({ id: comment.id, comment: comment.comment, dateAdd: comment.dateAdd });
