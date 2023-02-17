@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Comment, CommentsService, HttpError} from "../service/commentsService";
 import CommentComponent from "./CommentComponent";
 import {DateTime} from "luxon";
-import {FormControl, IconButton, Input, InputAdornment, InputLabel, List, ListItem} from "@mui/material";
+import {FormControl, IconButton, Input, InputAdornment, InputLabel, List, ListItemButton} from "@mui/material";
 import {ArrowDownward, ArrowUpward, Delete, Save, Undo} from "@mui/icons-material";
 
 const commentsService = CommentsService.getInstance();
@@ -11,14 +11,18 @@ function CommentsComponent() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [editComment, setEditComment] = useState<Comment>({ comment: '' });
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-
-  useEffect(() => {
-    commentsService
-    .listComments()
-    .then((comments: Comment[]) => {
-      setComments(sort(comments));
-    });
-  }, []);
+  const sort = useCallback((comments: Comment[], newSortDirection?: 'asc' | 'desc') => {
+    if (!newSortDirection) {
+      newSortDirection = sortDirection;
+    } else {
+      setSortDirection(newSortDirection);
+    }
+    let sortedComments = comments.sort((c1, c2) => DateTime.fromISO(c1.dateAdd as string).toMillis() - DateTime.fromISO(c2.dateAdd as string).toMillis());
+    if (newSortDirection === 'desc') {
+      sortedComments = comments.reverse();
+    }
+    return sortedComments;
+  }, [sortDirection]);
 
   const resetEditComment = () => {
     setEditComment({ comment: '' });
@@ -60,22 +64,17 @@ function CommentsComponent() {
 
   const doEditComment = (comment: Comment) => setEditComment({ id: comment.id, comment: comment.comment, dateAdd: comment.dateAdd });
 
-  const sort = (comments: Comment[], newSortDirection?: 'asc' | 'desc') => {
-    if (!newSortDirection) {
-      newSortDirection = sortDirection;
-    } else {
-      setSortDirection(newSortDirection);
-    }
-    let sortedComments = comments.sort((c1, c2) => DateTime.fromISO(c1.dateAdd as string).toMillis() - DateTime.fromISO(c2.dateAdd as string).toMillis());
-    if (newSortDirection === 'desc') {
-      sortedComments = comments.reverse();
-    }
-    return sortedComments;
-  }
+  useEffect(() => {
+    commentsService
+    .listComments()
+    .then((comments: Comment[]) => {
+      setComments(sort(comments));
+    });
+  }, [sort]);
 
   return (
     <>
-      <form>
+      <form className="comment-form">
         <FormControl variant="standard">
           <InputLabel htmlFor="comment">Kommentar</InputLabel>
           <Input
@@ -86,19 +85,19 @@ function CommentsComponent() {
             onChange={e => setEditComment({ id: editComment.id, dateAdd: editComment.dateAdd, comment: e.currentTarget.value })}
             endAdornment={
               <InputAdornment position="end">
-                <IconButton aria-label="Speichern" onClick={() => doSaveComment()} disabled={!editComment || editComment.comment === ''}>
+                <IconButton aria-label="Speichern" onClick={() => doSaveComment()} disabled={!editComment || editComment.comment === ''} color="primary">
                   <Save/>
                 </IconButton>
                 {
                   editComment.comment !== '' ? (
-                    <IconButton aria-label="Zurücksetzen" onClick={() => resetEditComment()}>
+                    <IconButton aria-label="Zurücksetzen" onClick={() => resetEditComment()} color="secondary">
                       <Undo/>
                     </IconButton>
                   ) : (<></>)
                 }
                 {
                   editComment.id ? (
-                    <IconButton aria-label="Löschen" onClick={() => doDeleteComment(editComment)}>
+                    <IconButton aria-label="Löschen" onClick={() => doDeleteComment(editComment)} color="warning">
                       <Delete/>
                     </IconButton>
                   ) : (<></>)
@@ -108,19 +107,19 @@ function CommentsComponent() {
         </FormControl>
       </form>
       <div>
-        <IconButton aria-label="Sortierung: neueste zuerst" onClick={() => setComments(sort(comments, 'desc'))}>
+        <IconButton aria-label="Sortierung: neueste zuerst" onClick={() => setComments(sort(comments, 'desc'))} color="secondary">
           <ArrowDownward/>
         </IconButton>
-        <IconButton aria-label="Sortierung: älteste zuerst" onClick={() => setComments(sort(comments, 'asc'))}>
+        <IconButton aria-label="Sortierung: älteste zuerst" onClick={() => setComments(sort(comments, 'asc'))} color="secondary">
           <ArrowUpward/>
         </IconButton>
       </div>
       <List>
         {
           comments.map(comment => (
-            <ListItem key={comment.id}>
+            <ListItemButton key={comment.id} selected={ editComment.id === comment.id } onClick={() => doEditComment(comment)}>
               <CommentComponent comment={comment} editAction={doEditComment} deleteAction={doDeleteComment} />
-            </ListItem>
+            </ListItemButton>
           ))
         }
       </List>

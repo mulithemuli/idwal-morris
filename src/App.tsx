@@ -1,26 +1,31 @@
 import React, {useEffect, useState} from 'react';
 import './App.scss';
 import CommentsComponent from "./component/CommentsComponent";
-import {createTheme, CssBaseline, IconButton, ThemeProvider} from "@mui/material";
-import {WbSunny} from "@mui/icons-material";
+import {AppBar, createTheme, CssBaseline, IconButton, ThemeProvider} from "@mui/material";
+import {DarkMode, WbSunny} from "@mui/icons-material";
+import {blueGrey, grey, indigo} from "@mui/material/colors";
 
 const darkTheme = createTheme({
-    palette: {
-        mode: 'dark'
-    }
+  palette: {
+    mode: 'dark',
+    primary: blueGrey,
+    secondary: grey
+  }
 });
 
 const lightTheme = createTheme({
   palette: {
-    mode: 'light'
+    mode: 'light',
+    primary: indigo,
+    secondary: {
+      main: '#ff4081',
+    }
   }
 });
 
 function App() {
   const [chosenTheme, setChosenTheme] = useState(lightTheme);
-  if (chosenTheme.palette.mode === 'light') {
 
-  }
   useEffect(() => {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setChosenTheme(darkTheme);
@@ -28,7 +33,7 @@ function App() {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
       setChosenTheme(event.matches ? darkTheme : lightTheme);
     });
-  });
+  }, []);
 
   const readModeSwitchLabel = () => {
     if (chosenTheme.palette.mode === 'light') {
@@ -49,16 +54,16 @@ function App() {
   return (
     <ThemeProvider theme={chosenTheme}>
       <CssBaseline/>
-      <header className="App-header">
+      <AppBar position="relative" color="primary">
         <div className="body-container">
           <h1>React Comment Demo App</h1>
           <nav>
-            <IconButton aria-label={readModeSwitchLabel()} onClick={switchTheme}>
-              <WbSunny/>
+            <IconButton aria-label={readModeSwitchLabel()} onClick={switchTheme} color="inherit">
+              { chosenTheme.palette.mode === 'dark' ? (<DarkMode/>) : (<WbSunny/>) }
             </IconButton>
           </nav>
         </div>
-      </header>
+      </AppBar>
       <main className="body-container">
         <CommentsComponent/>
       </main>

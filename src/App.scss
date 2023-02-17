@@ -13,6 +13,8 @@
 }
 
 header {
+  margin-bottom: 2rem;
+
   .body-container {
     display: flex;
   }
@@ -24,5 +26,16 @@ header {
   nav {
     display: flex;
     align-items: center;
+  }
+}
+
+main {
+
+  form.comment-form {
+    margin-bottom: 1rem;
+  }
+
+  button.MuiFab-root {
+    margin-left: .5rem;
   }
 }
