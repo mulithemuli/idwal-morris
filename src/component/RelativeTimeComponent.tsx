@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {DateTime} from "luxon";
 import {distinctUntilChanged, interval, map} from "rxjs";
+import {Tooltip} from "@mui/material";
 
 function RelativeTimeComponent(props: { time: string }) {
     const [absoluteTime, setAbsoluteTime] = useState<string>();
@@ -21,7 +22,9 @@ function RelativeTimeComponent(props: { time: string }) {
 
     return (
         <>
-            <span title={absoluteTime}>{relativeTime}</span>
+            <Tooltip title={absoluteTime} enterDelay={300}>
+                <span>{relativeTime}</span>
+            </Tooltip>
         </>
     );
 }
