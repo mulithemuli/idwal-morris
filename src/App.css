@@ -11,3 +11,7 @@
 .App-link {
   color: #61dafb;
 }
+
+.MuiFormControl-root {
+  width: 100%;
+}

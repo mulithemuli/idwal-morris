@@ -19,9 +19,9 @@ function RelativeTimeComponent(props: { time: string }) {
     }, [props.time]);
 
     return (
-        <div>
+        <>
             <span title={absoluteTime}>{relativeTime}</span>
-        </div>
+        </>
     );
 }
 

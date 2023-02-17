@@ -1,7 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {CommentsService, Comment, HttpError} from "../service/commentsService";
+import {Comment, CommentsService, HttpError} from "../service/commentsService";
 import CommentComponent from "./CommentComponent";
 import {DateTime} from "luxon";
+import {FormControl, IconButton, Input, InputAdornment, InputLabel, List, ListItem} from "@mui/material";
+import {ArrowDownward, ArrowUpward, Delete, Save, Undo} from "@mui/icons-material";
 
 const commentsService = CommentsService.getInstance();
 
@@ -73,29 +75,55 @@ function CommentsComponent() {
 
     return (
         <>
-            <textarea value={editComment.comment} onChange={e => setEditComment({ id: editComment.id, dateAdd: editComment.dateAdd, comment: e.currentTarget.value })}></textarea>
-            <button type="button" aria-label="Speichern" onClick={() => doSaveComment()} disabled={!editComment || editComment.comment === ''}>Speichern</button>
-            {
-                editComment.comment !== '' ? (
-                    <button type="button" aria-label="Zurücksetzen" onClick={() => resetEditComment()}>Zurücksetzen</button>
-                ) : (<></>)
-            }
-            {
-                editComment.id ? (<button type="button" aria-label="Löschen" onClick={() => doDeleteComment(editComment)}>Löschen</button>) : (<></>)
-            }
+            <form>
+                <FormControl variant="standard">
+                    <InputLabel htmlFor="comment">Kommentar</InputLabel>
+                    <Input
+                        id="comment"
+                        multiline
+                        rows={2}
+                        value={editComment.comment}
+                        onChange={e => setEditComment({ id: editComment.id, dateAdd: editComment.dateAdd, comment: e.currentTarget.value })}
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton aria-label="Speichern" onClick={() => doSaveComment()} disabled={!editComment || editComment.comment === ''}>
+                                    <Save/>
+                                </IconButton>
+                                {
+                                    editComment.comment !== '' ? (
+                                        <IconButton aria-label="Zurücksetzen" onClick={() => resetEditComment()}>
+                                            <Undo/>
+                                        </IconButton>
+                                    ) : (<></>)
+                                }
+                                {
+                                    editComment.id ? (
+                                        <IconButton aria-label="Löschen" onClick={() => doDeleteComment(editComment)}>
+                                            <Delete/>
+                                        </IconButton>
+                                    ) : (<></>)
+                                }
+                            </InputAdornment>
+                        } />
+                </FormControl>
+            </form>
             <div>
-                <button type="button" aria-label="Sortierung: neueste zuerst" onClick={() => { setComments(sort(comments, 'desc')); } }>Neueste zuerst</button>
-                <button type="button" aria-label="Sortierung: älteste zuerst" onClick={() => { setComments(sort(comments, 'asc')); } }>Älteste zuerst</button>
+                <IconButton aria-label="Sortierung: neueste zuerst" onClick={() => setComments(sort(comments, 'desc'))}>
+                    <ArrowDownward/>
+                </IconButton>
+                <IconButton aria-label="Sortierung: älteste zuerst" onClick={() => setComments(sort(comments, 'asc'))}>
+                    <ArrowUpward/>
+                </IconButton>
             </div>
-            <ul>
+            <List>
                 {
                     comments.map(comment => (
-                        <li key={comment.id}>
+                        <ListItem key={comment.id}>
                             <CommentComponent comment={comment} editAction={doEditComment} deleteAction={doDeleteComment} />
-                        </li>
+                        </ListItem>
                     ))
                 }
-            </ul>
+            </List>
         </>
     );
 }
