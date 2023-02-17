@@ -10,12 +10,13 @@ function RelativeTimeComponent(props: { time: string }) {
         const timeObj = DateTime.fromISO(props.time);
         setAbsoluteTime(timeObj.toLocaleString({ minute: '2-digit', hour: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }));
         setRelativeTime(timeObj.toRelative({ locale: 'de' }) || '');
-        interval(1000).pipe(
+        const subscription = interval(1000).pipe(
             map(() => timeObj.toRelative({ locale: 'de' })),
             distinctUntilChanged()
         ).subscribe({
             next: relativeTime => setRelativeTime(relativeTime || '')
-        })
+        });
+        return () => subscription.unsubscribe()
     }, [props.time]);
 
     return (
