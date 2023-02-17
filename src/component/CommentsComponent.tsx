@@ -28,13 +28,12 @@ function CommentsComponent() {
         }
         if (editComment.id) {
             commentsService.updateComment(editComment).then(comment => {
-                const updatedComment = comments.find(existingComment => existingComment.id === comment.id);
-                if (updatedComment) {
-                    updatedComment.comment = comment.comment;
-                    updatedComment.dateAdd = comment.dateAdd;
-                }
+                const index = comments.findIndex(existingComment => existingComment.id === comment.id);
+                const newComments = [...comments];
+                newComments.splice(index, 1);
+                newComments.push(comment);
                 resetEditComment();
-                sort(comments);
+                setComments(sort(newComments));
             }).catch((error: HttpError) => {
                 console.warn(`Unable to modify comment. Server responded with status code ${error.response.status}`);
             });
