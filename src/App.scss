@@ -1,0 +1,28 @@
+.App {
+  height: 100%
+}
+
+.MuiFormControl-root {
+  width: 100%;
+}
+
+.body-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+header {
+  .body-container {
+    display: flex;
+  }
+
+  h1 {
+    flex-grow: 1;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+  }
+}
